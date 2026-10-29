@@ -1,0 +1,75 @@
+import pygame
+import sys
+
+#background
+LARGURA_TELA = 500
+ALTURA_TELA = 600
+TAMANHO_BLOCO = 30
+COLUNAS = 10
+LINHAS = 20
+
+#rgb
+PRETO = (0, 0, 0)
+CINZA = (50, 50, 50)
+BRANCO = (255, 255, 255)
+
+
+def criar_matriz():
+
+    return [[0 for _ in range(COLUNAS)] for _ in range(LINHAS)]
+
+
+def desenhar_grade(tela, matriz):
+    for linha in range(LINHAS):
+        for coluna in range(COLUNAS):
+
+            x = coluna * TAMANHO_BLOCO
+            y = linha * TAMANHO_BLOCO
+
+
+            retangulo = pygame.Rect(x, y, TAMANHO_BLOCO, TAMANHO_BLOCO)
+            pygame.draw.rect(tela, CINZA, retangulo, 1)
+
+
+def main():
+    #pygame
+    pygame.init()
+    tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
+    pygame.display.set_caption("Tetris RA - Sprint 1")
+    relogio = pygame.time.Clock()
+
+
+    fonte_placar = pygame.font.SysFont("consolas", 28, bold=True)
+    score = 0
+
+    grade = criar_matriz()
+
+    rodando = True
+    while rodando:
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                rodando = False
+
+        tela.fill(PRETO)
+
+
+        desenhar_grade(tela, grade)
+
+
+        texto_score = fonte_placar.render(f"SCORE {str(score).zfill(4)}", True, BRANCO)
+
+
+        posicao_x_placar = (COLUNAS * TAMANHO_BLOCO) + 20
+        tela.blit(texto_score, (posicao_x_placar, 20))
+
+
+        pygame.display.flip()
+        relogio.tick(60)
+
+    pygame.quit()
+    sys.exit()
+
+
+if __name__ == "__main__":
+    main()
