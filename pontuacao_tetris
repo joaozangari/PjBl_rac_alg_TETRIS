@@ -1,0 +1,17 @@
+import pygame
+pontos_por_linhas = {0: 0, 1: 40, 2: 100, 3: 300, 4: 1200}
+
+pontuacao = 0
+nivel = 0
+linhas_tot = 0
+
+def calcular_pontos(linhas_destruidas, nivel):
+    return pontos_por_linhas.get(linhas_destruidas, 0) * (nivel + 1) #A pontuação real é calculada pela fórmula: Pontos Base × (Nível + 1)
+
+def atualizar_placar(linhas_destruidas):
+    global pontuacao, linhas_tot, nivel
+    pontuacao += calcular_pontos(linhas_destruidas, nivel)
+    linhas_tot += linhas_destruidas
+    nivel = linhas_tot // 10
+
+    return f"Pontos: {pontuacao:06d}"
