@@ -3,6 +3,8 @@ import sys
 
 from pecas import gerar_nova_peca
 
+from gravidade import INTERVALO_QUEDA
+
 # background
 LARGURA_TELA = 500
 ALTURA_TELA = 600
@@ -68,7 +70,22 @@ def desenhar_peca_ativa(tela, peca):
 
                     pygame.draw.rect(tela, corPeca, retangulo)
                     pygame.draw.rect(tela, CINZA, retangulo, 1)
+                    
+def pontuar_linhas(matriz):
+    
+    linhas_inicio = len(matriz)
+    
+    matriz[:] = [
+        linha for linha in matriz
+        if 0 in linha
+    ]
+    
+    linhas_pontos = linhas_inicio - len(matriz)
+    
+    for _ in range(linhas_pontos):
+        matriz.insert(0, [0 for _ in range(COLUNAS)])
 
+    return linhas_pontos
 
 def main():
     # pygame
@@ -82,10 +99,12 @@ def main():
 
     grade = criar_matriz()
 
-   
     peca_atual = gerar_nova_peca()
+    
+    tempo = pygame.time.get_ticks()
 
     rodando = True
+    
     while rodando:
 
         for evento in pygame.event.get():
@@ -95,14 +114,37 @@ def main():
            
             if evento.type == pygame.KEYDOWN:
                 if evento.key in (pygame.K_LEFT, pygame.K_a):
-                    peca_atual.x -= 1
+                    peca_atual.mover_horizontal(grade, -1)
                 elif evento.key in (pygame.K_RIGHT, pygame.K_d):
-                    peca_atual.x += 1
+                    peca_atual.mover_horizontal(grade, 1)
                 elif evento.key in (pygame.K_DOWN, pygame.K_s):
-                    peca_atual.y += 1
+                    
+                    if not peca_atual.aplicar_gravidade(grade):
+                        linhas_pontos = pontuar_linhas(grade)
+                        score += linhas_pontos * 1000
+                        
+                        peca_atual = gerar_nova_peca()
+                    
                 elif evento.key == pygame.K_SPACE:
-                   
+                    
+                    while peca_atual.aplicar_gravidade(grade):
+                        pass
+                    
+                    linhas_pontos = pontuar_linhas(grade)
+                    score += linhas_pontos * 1000
+                    
                     peca_atual = gerar_nova_peca()
+                    
+        tempo_atual = pygame.time.get_ticks()
+        
+        if tempo_atual - tempo >= INTERVALO_QUEDA:
+            if not peca_atual.aplicar_gravidade(grade):
+                linhas_pontos = pontuar_linhas(grade)
+                score += linhas_pontos * 1000
+                
+                peca_atual = gerar_nova_peca()
+                
+            tempo = tempo_atual
 
         tela.fill(PRETO)
 

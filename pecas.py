@@ -1,39 +1,42 @@
 import random
 
+import copy
+
 PECAS_MATRIZES = {
     'I': [
-        [0, 9, 0, 0],
-        [0, 9, 0, 0],
-        [0, 9, 0, 0],
-        [0, 9, 0, 0]
+        [1],
+        [1],
+        [1],
+        [1]
     ],
     'O': [
-        [7, 7],
-        [7, 7]
+        [2, 2],
+        [2, 2]
     ],
     'T': [
-        [0, 2, 0],
-        [2, 2, 2],
+        [0, 3, 0],
+        [3, 3, 3],
         [0, 0, 0]
     ],
     'L': [
-        [1, 0, 0],
-        [1, 0, 0],
-        [1, 1, 0]
+        [4, 0],
+        [4, 0],
+        [4, 4]
     ],
     'J': [
-        [0, 0, 4],
-        [0, 0, 4],
-        [0, 4, 4]
+        [0, 5],
+        [0, 5],
+        [5, 5]
     ]
 }
 
 class Peca:
     def __init__(self, x=3, y=0):
         self.tipo = random.choice(list(PECAS_MATRIZES.keys()))
-        self.matriz = PECAS_MATRIZES[self.tipo]
+        self.matriz = copy.deepcopy(PECAS_MATRIZES[self.tipo])
         self.x = x 
         self.y = y 
 
 def gerar_nova_peca():
-    return Peca(x=3, y=0)
+    from gravidade import pecaMovi
+    return pecaMovi(x=3, y=0)
