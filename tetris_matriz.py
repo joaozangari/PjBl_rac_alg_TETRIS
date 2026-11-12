@@ -32,6 +32,13 @@ PECAS = {
     5: (0, 255, 255)
 }
 
+PONTOS = {
+    1: 100,
+    2: 300,
+    3: 500,
+    4: 800,
+}
+
 
 def criar_matriz():
     return [[0 for _ in range(COLUNAS)] for _ in range(LINHAS)]
@@ -87,7 +94,17 @@ def pontuar_linhas(matriz):
 
     return linhas_pontos
 
+def atualizar_score(linhas_pontos):
+    global score, linhas_totais
+    
+    if linhas_pontos > 0:
+        
+        linhas_totais += linhas_pontos
+        
+        score += PONTOS.get(linhas_pontos, 0)
+
 def main():
+    global score, linhas_totais
     # pygame
     pygame.init()
     tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
@@ -95,13 +112,16 @@ def main():
     relogio = pygame.time.Clock()
 
     fonte_placar = pygame.font.SysFont("consolas", 28, bold=True)
-    score = 0
 
     grade = criar_matriz()
 
     peca_atual = gerar_nova_peca()
     
     tempo = pygame.time.get_ticks()
+    
+    score = 0
+        
+    linhas_totais = 0
 
     rodando = True
     
@@ -121,8 +141,7 @@ def main():
                     
                     if not peca_atual.aplicar_gravidade(grade):
                         linhas_pontos = pontuar_linhas(grade)
-                        score += linhas_pontos * 1000
-                        
+                        atualizar_score(linhas_pontos)
                         peca_atual = gerar_nova_peca()
                     
                 elif evento.key == pygame.K_SPACE:
@@ -131,8 +150,7 @@ def main():
                         pass
                     
                     linhas_pontos = pontuar_linhas(grade)
-                    score += linhas_pontos * 1000
-                    
+                    atualizar_score(linhas_pontos)
                     peca_atual = gerar_nova_peca()
                     
         tempo_atual = pygame.time.get_ticks()
@@ -140,8 +158,7 @@ def main():
         if tempo_atual - tempo >= INTERVALO_QUEDA:
             if not peca_atual.aplicar_gravidade(grade):
                 linhas_pontos = pontuar_linhas(grade)
-                score += linhas_pontos * 1000
-                
+                atualizar_score(linhas_pontos)
                 peca_atual = gerar_nova_peca()
                 
             tempo = tempo_atual
@@ -164,7 +181,6 @@ def main():
 
     pygame.quit()
     sys.exit()
-
-
+    
 if __name__ == "__main__":
     main()
