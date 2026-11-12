@@ -7,6 +7,8 @@ from gravidade import INTERVALO_QUEDA
 
 from ranking import criar_tabela, pontos, pontos_recorde
 
+from sons import preparar_audio, carregar_sons, tocar
+
 LARGURA_TELA = 500
 ALTURA_TELA = 600
 TAMANHO_BLOCO = 30
@@ -16,6 +18,7 @@ LINHAS = 20
 PRETO = (0, 0, 0)
 CINZA = (50, 50, 50)
 BRANCO = (255, 255, 255)
+DOURADO = (255, 215, 0)
 
 PECAS = {
     0: (0, 0, 0),       # Preto
@@ -165,12 +168,18 @@ def processar_linhas_completas(tela, grade):
 
 def main():
     global score, linhas_totais
+    
+    preparar_audio()
+    
     pygame.init()
     tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
     pygame.display.set_caption("Tetris RA - Sprint 1")
     relogio = pygame.time.Clock()
+    
+    carregar_sons()
 
     fonte_placar = pygame.font.SysFont("consolas", 28, bold=True)
+    fonte_recorde = pygame.font.SysFont("consolas", 24, bold=True)
     
     criar_tabela()
     recorde = pontos()
@@ -194,6 +203,18 @@ def main():
             game_over = True
             recorde = pontos_recorde(score)
             
+    def finalizar_peca():
+        linhas_pontos = pontuar_linhas(grade)
+        atualizar_score(linhas_pontos)
+        peca_segura()
+
+        if game_over:
+            tocar("game_over")
+        elif linhas_pontos > 0:
+            tocar("linha")
+        else:
+            tocar("fixar")
+            
     peca_segura()
 
     rodando = True
@@ -203,21 +224,29 @@ def main():
                 rodando = False
 
             if evento.type == pygame.KEYDOWN and not game_over:
-                if evento.key in (pygame.K_LEFT, pygame.K_a):
-                    peca_atual.mover_horizontal(grade, -1)
-                elif evento.key in (pygame.K_RIGHT, pygame.K_d):
-                    peca_atual.mover_horizontal(grade, 1)
+                if evento.key in (pygame.K_LEFT, pygame.K_a, pygame.K_RIGHT, pygame.K_d):
+                    direcao = -1 if evento.key in (pygame.K_LEFT, pygame.K_a) else 1
+                    x_antes = peca_atual.x
+                    peca_atual.mover_horizontal(grade, direcao)
+                    if peca_atual.x != x_antes:
+                        tocar("mover")
+
                 elif evento.key in (pygame.K_DOWN, pygame.K_s):
                     if not peca_atual.aplicar_gravidade(grade):
                         processar_linhas_completas(tela, grade)
                         peca_segura()
+                                  
                 elif evento.key in (pygame.K_UP, pygame.K_w):
                     peca_atual.rotacionar(grade)
+                    tocar("girar")
+                    
+                    
                 elif evento.key == pygame.K_SPACE:
                     while peca_atual.aplicar_gravidade(grade):
                         pass
                     processar_linhas_completas(tela, grade)
                     peca_segura()
+                    tocar("linha")
                 
         tempo_atual = pygame.time.get_ticks()
 
@@ -226,6 +255,7 @@ def main():
                 if not peca_atual.aplicar_gravidade(grade):
                     processar_linhas_completas(tela, grade)
                     peca_segura()
+                    
                 tempo = tempo_atual
 
         tela.fill(PRETO)
@@ -236,6 +266,12 @@ def main():
         texto_score = fonte_placar.render(f"SCORE {str(score).zfill(4)}", True, BRANCO)
         posicao_x_placar = (COLUNAS * TAMANHO_BLOCO) + 20
         tela.blit(texto_score, (posicao_x_placar, 20))
+        
+        melhor = max(recorde, score)
+        texto_melhor = fonte_recorde.render("MELHOR", True, DOURADO)
+        texto_melhor_valor = fonte_recorde.render(str(melhor).zfill(4), True, DOURADO)
+        tela.blit(texto_melhor, (posicao_x_placar, ALTURA_TELA - 70))
+        tela.blit(texto_melhor_valor, (posicao_x_placar, ALTURA_TELA - 40))
 
         desenhar_proxima_peca(tela, peca_proxima, fonte_placar)
 
