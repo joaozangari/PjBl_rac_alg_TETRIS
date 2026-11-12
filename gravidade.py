@@ -4,7 +4,7 @@ INTERVALO_QUEDA = 500
 
 class pecaMovi(Peca):
     
-    def _init_(self, x = 3, y = 0):
+    def __init__(self, x = 3, y = 0):
         super().__init__(x, y)
 
     def colide(self, matriz, px, py):

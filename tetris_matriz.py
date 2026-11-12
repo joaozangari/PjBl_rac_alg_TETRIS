@@ -5,6 +5,8 @@ from pecas import gerar_nova_peca
 
 from gravidade import INTERVALO_QUEDA
 
+from ranking import criar_tabela, pontos, pontos_recorde
+
 # background
 LARGURA_TELA = 500
 ALTURA_TELA = 600
@@ -112,16 +114,35 @@ def main():
     relogio = pygame.time.Clock()
 
     fonte_placar = pygame.font.SysFont("consolas", 28, bold=True)
+    fonte_game_over =  pygame.font.SysFont("consolas", 40, bold=True)
+    fonte_fim =  pygame.font.SysFont("consolas", 28, bold=True)
+    
+    criar_tabela()
+    
+    recorde = pontos()
 
     grade = criar_matriz()
-
-    peca_atual = gerar_nova_peca()
     
     tempo = pygame.time.get_ticks()
     
     score = 0
         
     linhas_totais = 0
+    
+    game_over = False
+    
+    peca_atual = None
+    
+    def peca_segura():
+        nonlocal peca_atual, game_over, recorde
+        
+        peca_atual = gerar_nova_peca()
+        
+        if peca_atual.colide(grade, peca_atual.x, peca_atual.y):
+            game_over = True
+            recorde = pontos_recorde(score)
+            
+    peca_segura()
 
     rodando = True
     
@@ -132,7 +153,7 @@ def main():
                 rodando = False
 
            
-            if evento.type == pygame.KEYDOWN:
+            if evento.type == pygame.KEYDOWN and not game_over:
                 if evento.key in (pygame.K_LEFT, pygame.K_a):
                     peca_atual.mover_horizontal(grade, -1)
                 elif evento.key in (pygame.K_RIGHT, pygame.K_d):
@@ -142,7 +163,7 @@ def main():
                     if not peca_atual.aplicar_gravidade(grade):
                         linhas_pontos = pontuar_linhas(grade)
                         atualizar_score(linhas_pontos)
-                        peca_atual = gerar_nova_peca()
+                        peca_segura()
                     
                 elif evento.key == pygame.K_SPACE:
                     
@@ -151,17 +172,20 @@ def main():
                     
                     linhas_pontos = pontuar_linhas(grade)
                     atualizar_score(linhas_pontos)
-                    peca_atual = gerar_nova_peca()
-                    
-        tempo_atual = pygame.time.get_ticks()
-        
-        if tempo_atual - tempo >= INTERVALO_QUEDA:
-            if not peca_atual.aplicar_gravidade(grade):
-                linhas_pontos = pontuar_linhas(grade)
-                atualizar_score(linhas_pontos)
-                peca_atual = gerar_nova_peca()
+                    peca_segura()
                 
-            tempo = tempo_atual
+        tempo_atual = pygame.time.get_ticks()
+
+        if not game_over:
+        
+            if tempo_atual - tempo >= INTERVALO_QUEDA:
+                
+                if not peca_atual.aplicar_gravidade(grade):
+                    linhas_pontos = pontuar_linhas(grade)
+                    atualizar_score(linhas_pontos)
+                    peca_segura()
+                
+                tempo = tempo_atual
 
         tela.fill(PRETO)
 
