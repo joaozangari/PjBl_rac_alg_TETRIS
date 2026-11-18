@@ -10,6 +10,7 @@ efeitos = {}
 
 def preparar_audio():
     pygame.mixer.pre_init(22050, -16, 1, 512)
+    pygame.mixer.init()
 
 
 def criar_tom(freq_ini, freq_fim, duracao, onda="seno", volume=0.4):
@@ -79,3 +80,8 @@ def carregar_sons():
 def tocar(nome):
     if nome in efeitos:
         efeitos[nome].play()
+        
+def musica():
+    pygame.mixer.music.load("tetris_music.mp3")
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)

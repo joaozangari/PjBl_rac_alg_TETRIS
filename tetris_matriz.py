@@ -7,7 +7,7 @@ from gravidade import INTERVALO_QUEDA
 
 from ranking import criar_tabela, pontos, pontos_recorde
 
-from sons import preparar_audio, carregar_sons, tocar
+from sons import preparar_audio, carregar_sons, tocar, musica
 
 LARGURA_TELA = 500
 ALTURA_TELA = 600
@@ -341,14 +341,10 @@ def desenhar_game_over(tela, fonte_titulo_game_over, fonte_texto_game_over, scor
 def main():
     global score, linhas_totais
     
-    preparar_audio()
-    
     pygame.init()
     tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
     pygame.display.set_caption("Tetris RA - Sprint 1")
     relogio = pygame.time.Clock()
-    
-    carregar_sons()
 
     fonte_placar = pygame.font.SysFont("consolas", 28, bold=True)
     fonte_recorde = pygame.font.SysFont("consolas", 24, bold=True)
@@ -367,6 +363,13 @@ def main():
     criar_tabela()
     
     while True:
+        
+        preparar_audio()
+            
+        carregar_sons()
+            
+        musica()
+        
         recorde = pontos()
 
         grade = criar_matriz()
