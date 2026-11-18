@@ -250,6 +250,13 @@ def desenhar_peca_fantasma(tela, peca, grade):
                     
                     pygame.draw.rect(tela, cor_fantasma, retangulo, 2)
 
+def blocos_atingiram_metade(matriz):
+    limite_linha = LINHAS // 2
+    for linha in range(limite_linha):
+        if any(bloco != 0 for bloco in matriz[linha]):
+            return True
+    return False
+
 def desenhar_proxima_peca(tela, peca_proxima, fonte):
     pos_x_caixa = (COLUNAS * TAMANHO_BLOCO) + 20
     pos_y_caixa = 120
@@ -475,7 +482,9 @@ def main():
 
                 tela.fill(PRETO)
                 desenhar_grade(tela, grade)
-                desenhar_peca_fantasma(tela, peca_atual, grade)
+                if not blocos_atingiram_metade(grade):
+                    desenhar_peca_fantasma(tela, peca_atual, grade)
+                    
                 desenhar_peca_ativa(tela, peca_atual)
                 desenhar_melhor_score(tela, fonte_placar, recorde, fonte_recorde)
                 desenhar_proxima_peca(tela, peca_proxima, fonte_placar)
