@@ -467,6 +467,8 @@ def main():
                     
             if game_over:
                 
+                pygame.mixer.music.stop()
+                
                 desenhar_game_over(tela, fonte_titulo_game_over, fonte_texto_game_over, score, recorde)
             
             else:
